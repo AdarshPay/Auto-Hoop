@@ -55,6 +55,10 @@ public class Hoop extends SubsystemBase {
    */
   public void configMotors() {
 
+    hMaster.restoreFactoryDefaults();
+    hFollower.restoreFactoryDefaults();
+    vMaster.restoreFactoryDefaults();
+
     hFollower.follow(hMaster);
 
     hMaster.setIdleMode(IdleMode.kBrake);
