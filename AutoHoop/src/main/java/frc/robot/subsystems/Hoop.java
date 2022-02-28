@@ -10,9 +10,11 @@ import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Gains;
 import frc.robot.Constants.HoopConstants;
+import frc.robot.Constants.UnitConstants;
 
 public class Hoop extends SubsystemBase {
   
@@ -75,32 +77,23 @@ public class Hoop extends SubsystemBase {
    */
   public void configPIDs() {    
 
-    hMasterCtrl.setP(hMasterGains.kP);
-    hMasterCtrl.setI(hMasterGains.kI);
-    hMasterCtrl.setD(hMasterGains.kD);
-    hMasterCtrl.setFF(hMasterGains.kF);
-    hMasterCtrl.setIZone(hMasterGains.kIzone);
-    hMasterCtrl.setOutputRange(hMasterGains.kMinOutput, hMasterGains.kMaxOutput);
-
-    hFollowerCtrl.setP(hFollowerGains.kP);
-    hFollowerCtrl.setI(hFollowerGains.kI);
-    hFollowerCtrl.setD(hFollowerGains.kD);
-    hFollowerCtrl.setFF(hFollowerGains.kF);
-    hFollowerCtrl.setIZone(hFollowerGains.kIzone);
-    hFollowerCtrl.setOutputRange(hFollowerGains.kMinOutput, hFollowerGains.kMaxOutput);
-
-    vMasterCtrl.setP(vMasterGains.kP);
-    vMasterCtrl.setI(vMasterGains.kI);
-    vMasterCtrl.setD(vMasterGains.kD);
-    vMasterCtrl.setFF(vMasterGains.kF);
-    vMasterCtrl.setIZone(vMasterGains.kIzone);
-    vMasterCtrl.setOutputRange(vMasterGains.kMinOutput, vMasterGains.kMaxOutput);
+    hMasterGains.setSparkMAXGains(hMasterCtrl);
+    hFollowerGains.setSparkMAXGains(hFollowerCtrl);
+    vMasterGains.setSparkMAXGains(vMasterCtrl);
   }
 
+  /**
+   * Updates/puts values on SmartDashboard, for debugging purposes.
+   */
+  public void updateSmartDash() {
+    SmartDashboard.putNumberArray("Motor Positions", getMotorPos());
+    SmartDashboard.putNumberArray("Motor Velocities", getMotorVel());
+  }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    updateSmartDash();
   }
 
   /**
@@ -123,5 +116,48 @@ public class Hoop extends SubsystemBase {
     hMasterCtrl.setReference(targetRPM, ControlType.kVelocity);
     vMasterCtrl.setReference(targetRPM, ControlType.kVelocity);
   }
+
+  /**
+   * Set motors to move to position (x, y), where (0, 0) is the center of the frame.
+   * @param x Horizontal distance in ft.
+   * @param y Vertical distance in ft.
+   */
+  public void setToPos(double x, double y) {
+
+    x = x * UnitConstants.kFeetToRotations;
+    y = y * UnitConstants.kFeetToRotations;
+
+    hMasterCtrl.setReference(x, ControlType.kPosition);
+    vMasterCtrl.setReference(y, ControlType.kPosition);
+  }
+
+  /**
+   * Returns motor positions.
+   * @return Array of motor positions in feet [hMaster, hFollower, vMaster].
+   */
+  public double[] getMotorPos() {
+    double[] ret = new double[3];
+
+    ret[0] = hMasterEnc.getPosition() * UnitConstants.kRotationsToFeet;
+    ret[1] = hFollowerEnc.getPosition() * UnitConstants.kRotationsToFeet;
+    ret[2] = vMasterEnc.getPosition() * UnitConstants.kRotationsToFeet;
+
+    return ret;
+  }
   
+  /**
+   * Returns motor velocities.
+   * @return Array of motor velocities in rpm [hMaster, hFollower, vMaster].
+   */
+  public double[] getMotorVel() {
+
+    double[] ret = new double[3];
+
+    ret[0] = hMasterEnc.getVelocity();
+    ret[1] = hFollowerEnc.getVelocity();
+    ret[2] = vMasterEnc.getVelocity();
+
+    return ret;
+  }
+
 }

@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.revrobotics.SparkMaxPIDController;
+
 /** Add your docs here. */
 public class Gains {
   public double kP;
@@ -34,5 +36,18 @@ public class Gains {
     kPeakOutput = peakOutput;
     kMaxOutput = peakOutput;
     kMinOutput = -peakOutput;
+  }
+
+  /**
+   * Set gains for SparkMax motor controller.
+   * @param ctrl Motor controller.
+   */
+  public void setSparkMAXGains(SparkMaxPIDController ctrl) {
+    ctrl.setP(kP);
+    ctrl.setI(kI);
+    ctrl.setD(kD);
+    ctrl.setFF(kF);
+    ctrl.setIZone(kIzone);
+    ctrl.setOutputRange(kMinOutput, kMaxOutput);
   }
 }

@@ -5,10 +5,13 @@
 package frc.robot;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
+import frc.robot.Constants.CANConstants;
 
 /** Add your docs here. */
 public class RobotMap {
-  public CANSparkMax hMaster;
-  public CANSparkMax hFollower;
-  public CANSparkMax vMaster;
+  public CANSparkMax hMaster = new CANSparkMax(CANConstants.khMasterID, MotorType.kBrushless);
+  public CANSparkMax hFollower = new CANSparkMax(CANConstants.khFollowerID, MotorType.kBrushless);
+  public CANSparkMax vMaster = new CANSparkMax(CANConstants.kvMasterID, MotorType.kBrushless);
 }

@@ -13,18 +13,25 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-
+  
+  public static final class CANConstants {
+    
+    public static final int khMasterID = 0;
+    public static final int khFollowerID = 1;
+    public static final int kvMasterID = 2;
+  }
   public static final class HoopConstants {
 
-    // can ids
-    public static final int kMotor1ID = 0;
-    public static final int kMotor2ID = 1;
-    public static final int kMotor3ID = 2;
 
     // gains
     public static final Gains khMasterGains = new Gains(0.1, 0.0, 0.0, 0.0, 0, 1.0);
     public static final Gains khFollowerGains = new Gains(0.1, 0.0, 0.0, 0.0, 0, 1.0);
     public static final Gains kvMasterGains = new Gains(0.1, 0.0, 0.0, 0.0, 0, 1.0);
+  }
+
+  public static final class UnitConstants {
+    public static final double kFeetToRotations = 0.0; // TODO: put actual number here
+    public static final double kRotationsToFeet = 0.0; // TODO: put actual number here
   }
 
 }
