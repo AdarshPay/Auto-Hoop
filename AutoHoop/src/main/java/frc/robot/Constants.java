@@ -22,11 +22,14 @@ public final class Constants {
   }
   public static final class HoopConstants {
 
-
     // gains
     public static final Gains khMasterGains = new Gains(0.1, 0.0, 0.0, 0.0, 0, 1.0);
     public static final Gains khFollowerGains = new Gains(0.1, 0.0, 0.0, 0.0, 0, 1.0);
     public static final Gains kvMasterGains = new Gains(0.1, 0.0, 0.0, 0.0, 0, 1.0);
+
+    // soft limits
+    public static final float[] kForwardLimits = new float[] {0, 0, 0}; // TODO: put actual numbers here
+    public static final float[] kReverseLimits = new float[] {0, 0, 0}; // TODO: put actual numbers here
   }
 
   public static final class UnitConstants {

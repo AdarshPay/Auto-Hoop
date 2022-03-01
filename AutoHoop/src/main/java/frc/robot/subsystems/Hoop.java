@@ -9,6 +9,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMax.SoftLimitDirection;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -70,13 +71,38 @@ public class Hoop extends SubsystemBase {
 		hMaster.setInverted(false);
 		hFollower.setInverted(false);
 		vMaster.setInverted(false);
+
+    hMaster.setSoftLimit(SoftLimitDirection.kForward, HoopConstants.kForwardLimits[0]);
+    hMaster.setSoftLimit(SoftLimitDirection.kReverse, HoopConstants.kReverseLimits[0]);
+
+    hFollower.setSoftLimit(SoftLimitDirection.kForward, HoopConstants.kForwardLimits[1]);
+    hFollower.setSoftLimit(SoftLimitDirection.kReverse, HoopConstants.kReverseLimits[1]);
+
+    vMaster.setSoftLimit(SoftLimitDirection.kForward, HoopConstants.kForwardLimits[2]);
+    vMaster.setSoftLimit(SoftLimitDirection.kReverse, HoopConstants.kReverseLimits[2]);
+    
+    setSoftLimits(true);
+  }
+
+  /**
+   * Set soft limits to enabled or disabled.
+   * @param set State to set limits to.
+   */
+  public void setSoftLimits(boolean set) {
+    hMaster.enableSoftLimit(SoftLimitDirection.kForward, set);
+    hMaster.enableSoftLimit(SoftLimitDirection.kReverse, set);
+
+    hFollower.enableSoftLimit(SoftLimitDirection.kForward, set);
+    hFollower.enableSoftLimit(SoftLimitDirection.kReverse, set);
+    
+    vMaster.enableSoftLimit(SoftLimitDirection.kForward, set);
+    vMaster.enableSoftLimit(SoftLimitDirection.kReverse, set);
   }
 
   /**
    * Configure PID constants for hoop motors.
    */
   public void configPIDs() {    
-
     hMasterGains.setSparkMAXGains(hMasterCtrl);
     hFollowerGains.setSparkMAXGains(hFollowerCtrl);
     vMasterGains.setSparkMAXGains(vMasterCtrl);
@@ -123,7 +149,6 @@ public class Hoop extends SubsystemBase {
    * @param y Vertical distance in ft.
    */
   public void setToPos(double x, double y) {
-
     x = x * UnitConstants.kFeetToRotations;
     y = y * UnitConstants.kFeetToRotations;
 
@@ -150,7 +175,6 @@ public class Hoop extends SubsystemBase {
    * @return Array of motor velocities in rpm [hMaster, hFollower, vMaster].
    */
   public double[] getMotorVel() {
-
     double[] ret = new double[3];
 
     ret[0] = hMasterEnc.getVelocity();
