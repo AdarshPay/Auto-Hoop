@@ -6,6 +6,7 @@ import math
 from math import cos, sin, tan, pi
 from time import sleep
 import time
+import csv
 
 def on_change(value):
     print(value)
@@ -329,6 +330,16 @@ while True:
                 
             distance = zCoordinateCamera
             angle = math.atan2(yCoordinateCamera, xCoordinateCamera)
+            
+            fields = ["Distance", "Angle"]
+            
+            # write to BallPositions.csv
+            with open("BallPositions.csv", 'w') as csvfile:
+                csvwriter = csv.writer(csvfile)
+                csvwriter.writerow(fields)
+                
+                row = [distance, angle]
+                csvwriter.writerow(row)
 
             jsonString = '{"Distance":' + str(distance) + ', "Angle":' + str(angle) + ', "Confidence":' + str(len(roiList)) + ', "Timestamp":' + str(time.time()) +'}'
 
