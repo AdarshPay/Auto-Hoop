@@ -1,3 +1,4 @@
+import json
 import cv2
 import depthai
 import numpy as np  # numpy - manipulate the packet data returned by depthai
@@ -114,7 +115,7 @@ upperS = 255
 lowerV = 95
 upperV = 255
 
-expTime = 1000
+expTime = 40000
 sensIso = 500
 
 # Define a source - two mono (grayscale) cameras
@@ -263,22 +264,22 @@ while True:
             bottomRightY = float(boxArray[1][1])
             boxColor = (0,0,255)
 
-            if(peri > 35 and cntArea > 50):
-                cv2.drawContours(frame,[boxArray],0,boxColor,2)
+            # if(peri > 35 and cntArea > 50):
+            cv2.drawContours(frame,[boxArray],0,boxColor,2)
 
-                averageYPixels = averageYPixels + ((topLeftY + bottomRightY)/2)
-                averageXPixels = averageXPixels + ((topLeftY + bottomRightX)/2)
-                
-                topLeft = depthai.Point2f(-0.005 + (topLeftX/cameraResolutionWidth), -0.005 + (topLeftY/cameraResolutionHeight))
-                bottomRight = depthai.Point2f(0.005 + (bottomRightX/cameraResolutionWidth), 0.005 + (bottomRightY/cameraResolutionHeight))
+            averageYPixels = averageYPixels + ((topLeftY + bottomRightY)/2)
+            averageXPixels = averageXPixels + ((topLeftY + bottomRightX)/2)
+            
+            topLeft = depthai.Point2f(-0.005 + (topLeftX/cameraResolutionWidth), -0.005 + (topLeftY/cameraResolutionHeight))
+            bottomRight = depthai.Point2f(0.005 + (bottomRightX/cameraResolutionWidth), 0.005 + (bottomRightY/cameraResolutionHeight))
 
-                configData = depthai.SpatialLocationCalculatorConfigData()
+            configData = depthai.SpatialLocationCalculatorConfigData()
 
-                configData.calculationAlgorithm = depthai.SpatialLocationCalculatorAlgorithm.MIN
+            configData.calculationAlgorithm = depthai.SpatialLocationCalculatorAlgorithm.MIN
 
-                configData.roi = depthai.Rect(topLeft, bottomRight)
+            configData.roi = depthai.Rect(topLeft, bottomRight)
 
-                roiList.append(configData)
+            roiList.append(configData)
 
 
         if(len(roiList) > 0):
@@ -325,66 +326,21 @@ while True:
             # print("BEFORE: " + str(yCoordinateCamera))
 
             convertedCoordinates = convertCoordinates(xCoordinateCamera, yCoordinateCamera, zCoordinateCamera)
-
-            if(convertedCoordinates[0] != 0):
-                zList.append(convertedCoordinates[2])
-                xList.append(convertedCoordinates[0])
-                yList.append(convertedCoordinates[1])
-
-        if(len(xList) != 0):
-            xAverage = np.average(np.array(xList))
-            yAverage = np.average(np.array(yList))
-            bestGuess = np.array([xAverage + 26, yAverage])
-            targetResult = minimize(reduceBestFitError, bestGuess, args = (xList, yList), method = "Nelder-Mead", options = {"maxiter": 10})
-            targetCenterX = targetResult.x[0] + 8
-            targetCenterY = targetResult.x[1]
-
-            angle = math.atan(targetCenterY/targetCenterX)
-
-            # angle = -(averageXPixels - (cameraResolutionWidth/2)) * (HFOV/cameraResolutionWidth)
-            # angle = angle * math.pi/180
-            # distanceToTargetHypotenuse = math.sqrt((targetCenterX ** 2) + (targetCenterY ** 2))
-            depthBasedDistance = math.sqrt((targetCenterX ** 2) + (targetCenterY ** 2))
-
-
-            targetHeight = 96
-
-            pixelBasedDistanceToTape = 30.5 * (math.e ** (0.00391 * averageYPixels))
-
-            pixelBasedDistance = 30 + (pixelBasedDistanceToTape)/(math.cos(angle))
-
-            averagedDistance = (depthBasedDistance * 0.3) + (pixelBasedDistance * 0.7)
-
-            if(averagedDistance >= 115):
-                distance = (depthBasedDistance * 0.05) + (pixelBasedDistance * 0.95)
-            elif(averagedDistance >= 100 and averagedDistance < 115):
-                distance = (depthBasedDistance * 0.1) + (pixelBasedDistance * 0.9)
-            elif(averagedDistance >= 80 and averagedDistance < 100):
-                distance = (depthBasedDistance * 0.15) + (pixelBasedDistance * 0.85)
-            else:
-                distance = (depthBasedDistance * 0.2) + (pixelBasedDistance * 0.8)
-
-            distance = pixelBasedDistance
-
-            # angleToTargetCenterPixels = math.atan((averageYPixels - (cameraResolutionHeight/2)/focalLength))
-
-            # angleToGoal = angleToTargetCenterPixels + cameraMountAngleFromUpright
-
-            # pixelApproximatedDistance = targetHeightDifference/(math.tan(angleToGoal))
-
-            # print(pixelApproximatedDistance)
-
-            # distance = math.sqrt((distanceToTargetHypotenuse ** 2) - (targetHeight ** 2))
+                
+            distance = zCoordinateCamera
+            angle = math.atan2(yCoordinateCamera, xCoordinateCamera)
 
             jsonString = '{"Distance":' + str(distance) + ', "Angle":' + str(angle) + ', "Confidence":' + str(len(roiList)) + ', "Timestamp":' + str(time.time()) +'}'
 
             endTime = time.time()
+            
+            print(jsonString)
 
             # print(startTime - endTime)
 
             # publish(client, jsonString)
 
-            print("TargetX: " + str(targetCenterX) + " TargetY: " + str(targetCenterY) + " Distance: " + str(distance) + " Angle: " + str((angle)) + " Confidence: " + str(len(xList)))
+            # print("TargetX: " + str(targetCenterX) + " TargetY: " + str(targetCenterY) + " Distance: " + str(distance) + " Angle: " + str((angle)) + " Confidence: " + str(len(xList)))
 
             # print(depthBasedAngle)
 
